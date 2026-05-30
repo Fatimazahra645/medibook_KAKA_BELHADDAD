@@ -24,8 +24,17 @@ class Doctor(models.Model):
 
 
 class Availability(models.Model):
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    class Day(models.TextChoices):
+        MONDAY = "MONDAY"
+        TUESDAY = "TUESDAY"
+        WEDNESDAY = "WEDNESDAY"
+        THURSDAY = "THURSDAY"
+        FRIDAY = "FRIDAY"
+        SATURDAY = "SATURDAY"
+        SUNDAY = "SUNDAY"
 
-    day_of_week = models.CharField(max_length=20)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    day_of_week = models.CharField(max_length=10, choices=Day.choices)
+
     start_time = models.TimeField()
     end_time = models.TimeField()

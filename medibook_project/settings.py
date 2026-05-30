@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'doctors',
     'appointments',
     'ai_orientation',
+    'patients',
 ]
 
 # IMPORTANT: custom user model
