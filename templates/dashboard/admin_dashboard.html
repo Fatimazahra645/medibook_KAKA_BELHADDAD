@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tableau de bord Admin - MediBook</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-dark p-3">
+    <a class="navbar-brand" href="/">MediBook — Administration</a>
+    <a href="/logout/" class="btn btn-light btn-sm">Déconnexion</a>
+</nav>
+
+<div class="container mt-4">
+    <h1>Tableau de bord Administrateur</h1>
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <div class="card text-center p-3 bg-light">
+                <h3>{{ total_patients }}</h3>
+                <p>Patients</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-3 bg-light">
+                <h3>{{ total_doctors }}</h3>
+                <p>Médecins</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-3 bg-light">
+                <h3>{{ total_appointments }}</h3>
+                <p>Rendez-vous total</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-4">
+            <div class="card text-center p-3">
+                <h4>{{ pending_count }}</h4>
+                <p>En attente</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-3">
+                <h4>{{ confirmed_count }}</h4>
+                <p>Confirmés</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center p-3">
+                <h4>{{ cancelled_count }}</h4>
+                <p>Annulés</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

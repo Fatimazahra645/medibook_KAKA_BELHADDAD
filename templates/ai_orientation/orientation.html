@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Orientation médicale - MediBook</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-primary p-3">
+    <a class="navbar-brand" href="/">MediBook</a>
+</nav>
+
+<div class="container mt-5">
+    <h2>Aide à l'orientation médicale</h2>
+    <p class="text-muted">Décrivez vos symptômes et nous vous suggérons une spécialité. Ce n'est pas un diagnostic médical.</p>
+
+    <form method="POST" class="mt-3">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Décrivez votre motif de consultation</label>
+            <textarea name="reason" class="form-control" rows="4" placeholder="Ex: J'ai des douleurs à la poitrine et des palpitations..."></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Obtenir une suggestion</button>
+    </form>
+
+    {% if suggestion %}
+    <div class="alert alert-info mt-4">
+        <strong>Spécialité suggérée :</strong> {{ suggestion }}
+        <br><small>Cette suggestion est indicative. La décision finale vous appartient.</small>
+    </div>
+    <a href="/doctors/" class="btn btn-success mt-2">Voir les médecins de cette spécialité</a>
+    {% endif %}
+</div>
+</body>
+</html>

@@ -8,7 +8,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Applications
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -24,17 +23,23 @@ INSTALLED_APPS = [
     'appointments',
     'ai_orientation',
     'patients',
+    'dashboard',
 ]
 
-# IMPORTANT: custom user model
+# Custom user model
 AUTH_USER_MODEL = 'accounts.User'
 
+# Redirect unauthenticated users to login
+LOGIN_URL = '/login/'
+
+# Default primary key type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "templates"],  # IMPORTANT
+        'DIRS': [BASE_DIR / "templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -45,7 +50,6 @@ TEMPLATES = [
         },
     },
 ]
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -61,7 +65,6 @@ ROOT_URLCONF = 'medibook_project.urls'
 
 WSGI_APPLICATION = 'medibook_project.wsgi.application'
 
-
 # Database
 DATABASES = {
     'default': {
@@ -70,33 +73,19 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
 # Internationalization
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+LANGUAGE_CODE = 'fr-fr'
+TIME_ZONE = 'Africa/Casablanca'
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files
 STATIC_URL = 'static/'
