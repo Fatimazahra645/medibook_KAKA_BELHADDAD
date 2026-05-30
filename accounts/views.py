@@ -1,15 +1,53 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+def home(request):
+    return render(request, "core/home.html")
 
 
 def login_view(request):
     if request.method == "POST":
-        user = authenticate(
-            username=request.POST['username'],
-            password=request.POST['password']
-        )
-        if user:
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
             login(request, user)
             return redirect('home')
 
+        return render(request, "accounts/login.html", {
+            "error": "Invalid username or password"
+        })
+
     return render(request, "accounts/login.html")
+
+
+def register_view(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        if User.objects.filter(username=username).exists():
+            return render(request, "accounts/register.html", {
+                "error": "Username already exists"
+            })
+
+        User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        return redirect('login')
+
+    return render(request, "accounts/register.html")
+
+
+def doctors_view(request):
+    return render(request, "doctors/doctors.html")
