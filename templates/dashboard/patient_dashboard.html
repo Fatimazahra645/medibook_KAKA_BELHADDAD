@@ -1,56 +1,122 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
+    <meta charset="UTF-8">
     <title>Tableau de bord Patient - MediBook</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<nav class="navbar navbar-dark bg-primary p-3">
-    <a class="navbar-brand" href="/">MediBook</a>
-    <div>
-        <a href="/appointments/book/" class="btn btn-warning btn-sm me-2">Nouveau rendez-vous</a>
-        <a href="/logout/" class="btn btn-light btn-sm">Déconnexion</a>
+<nav class="navbar navbar-dark bg-primary px-4">
+    <a class="navbar-brand fw-bold" href="/">🏥 MediBook</a>
+    <div class="d-flex gap-2">
+        <a href="/doctors/" class="btn btn-warning btn-sm">Nouveau rendez-vous</a>
+        <a href="/ai/" class="btn btn-light btn-sm">🤖 Orientation IA</a>
+        <a href="/logout/" class="btn btn-outline-light btn-sm">Déconnexion</a>
     </div>
 </nav>
 
 <div class="container mt-4">
-    <h1>Tableau de bord Patient</h1>
+    <h1 class="mb-4">Mon espace patient</h1>
 
-    <h2 class="mt-4">Prochains rendez-vous</h2>
-    <ul class="list-group">
-        {% for appointment in upcoming_appointments %}
-        <li class="list-group-item">
-            {{ appointment.date }} à {{ appointment.time }} — Dr. {{ appointment.doctor }}
-            <span class="badge bg-primary ms-2">{{ appointment.status }}</span>
-        </li>
-        {% empty %}
-        <li class="list-group-item">Aucun rendez-vous à venir.</li>
-        {% endfor %}
-    </ul>
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
 
-    <h2 class="mt-4">Historique des consultations</h2>
-    <ul class="list-group">
+    <h4>📅 Prochains rendez-vous</h4>
+    <div class="table-responsive mb-4">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-primary">
+                <tr>
+                    <th>Date</th>
+                    <th>Heure</th>
+                    <th>Médecin</th>
+                    <th>Spécialité</th>
+                    <th>Statut</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for appointment in upcoming_appointments %}
+                <tr>
+                    <td>{{ appointment.date|date:"d/m/Y" }}</td>
+                    <td>{{ appointment.time|time:"H:i" }}</td>
+                    <td>Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</td>
+                    <td>{{ appointment.speciality.name|default:"—" }}</td>
+                    <td>
+                        <span class="badge bg-{% if appointment.status == 'CONFIRMED' %}success{% elif appointment.status == 'PENDING' %}warning text-dark{% else %}secondary{% endif %}">
+                            {{ appointment.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="/appointments/reschedule/{{ appointment.id }}/"
+                           class="btn btn-sm btn-outline-primary me-1">✏️ Modifier</a>
+                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#cancelModal{{ appointment.id }}">
+                            ❌ Annuler
+                        </button>
+
+                        <!-- Modal confirmation annulation -->
+                        <div class="modal fade" id="cancelModal{{ appointment.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Confirmer l'annulation</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        Voulez-vous vraiment annuler votre rendez-vous du
+                                        <strong>{{ appointment.date|date:"d/m/Y" }}</strong> à
+                                        <strong>{{ appointment.time|time:"H:i" }}</strong>
+                                        avec Dr. {{ appointment.doctor.user.last_name }} ?
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Non, garder</button>
+                                        <form method="POST" action="/appointments/cancel/{{ appointment.id }}/" style="display:inline">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Oui, annuler</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted">Aucun rendez-vous à venir.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <h4>🕓 Historique des consultations</h4>
+    <ul class="list-group mb-4">
         {% for appointment in past_appointments %}
-        <li class="list-group-item">
-            {{ appointment.date }} — Dr. {{ appointment.doctor }}
-            <span class="badge bg-secondary ms-2">Terminé</span>
+        <li class="list-group-item d-flex justify-content-between">
+            <span>{{ appointment.date|date:"d/m/Y" }} — Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</span>
+            <span class="badge bg-secondary">Terminé</span>
         </li>
         {% empty %}
-        <li class="list-group-item">Aucune consultation passée.</li>
+        <li class="list-group-item text-muted">Aucune consultation passée.</li>
         {% endfor %}
     </ul>
 
-    <h2 class="mt-4">Rendez-vous annulés</h2>
+    <h4>❌ Rendez-vous annulés</h4>
     <ul class="list-group">
         {% for appointment in cancelled_appointments %}
-        <li class="list-group-item">
-            {{ appointment.date }} — Dr. {{ appointment.doctor }}
-            <span class="badge bg-danger ms-2">Annulé</span>
+        <li class="list-group-item d-flex justify-content-between">
+            <span>{{ appointment.date|date:"d/m/Y" }} — Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</span>
+            <span class="badge bg-danger">Annulé</span>
         </li>
         {% empty %}
-        <li class="list-group-item">Aucun rendez-vous annulé.</li>
+        <li class="list-group-item text-muted">Aucun rendez-vous annulé.</li>
         {% endfor %}
     </ul>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

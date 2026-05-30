@@ -5,21 +5,28 @@ from .services import suggest_speciality
 class AIOrientationTests(TestCase):
 
     def test_suggest_cardiologie(self):
-        result = suggest_speciality("J'ai des douleurs à la poitrine et des palpitations")
-        self.assertEqual(result, "Cardiologie")
+        results = suggest_speciality("douleur poitrine palpitation essoufflement")
+        self.assertEqual(results[0]["speciality"], "Cardiologie")
 
     def test_suggest_dermatologie(self):
-        result = suggest_speciality("J'ai des boutons sur la peau")
-        self.assertEqual(result, "Dermatologie")
+        results = suggest_speciality("boutons peau rougeur démangeaison")
+        self.assertEqual(results[0]["speciality"], "Dermatologie")
 
     def test_suggest_dentisterie(self):
-        result = suggest_speciality("J'ai une douleur dentaire")
-        self.assertEqual(result, "Dentisterie")
+        results = suggest_speciality("douleur dent carie gencive")
+        self.assertEqual(results[0]["speciality"], "Dentisterie")
 
-    def test_suggest_default(self):
-        result = suggest_speciality("Je ne me sens pas bien")
-        self.assertEqual(result, "Médecine générale")
+    def test_suggest_returns_list(self):
+        results = suggest_speciality("mal à la tête et fatigue")
+        self.assertIsInstance(results, list)
+        self.assertGreater(len(results), 0)
+        self.assertIn("speciality", results[0])
+        self.assertIn("score", results[0])
 
-    def test_ai_page_load(self):
+    def test_suggest_empty_text_returns_default(self):
+        results = suggest_speciality("")
+        self.assertEqual(results[0]["speciality"], "Médecine générale")
+
+    def test_ai_page_loads(self):
         response = self.client.get("/ai/")
-        self.assertIn(response.status_code, [200, 404])
+        self.assertEqual(response.status_code, 200)

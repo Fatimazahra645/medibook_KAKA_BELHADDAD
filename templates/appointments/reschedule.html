@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier le rendez-vous - MediBook</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-dark bg-primary px-4">
+    <a class="navbar-brand fw-bold" href="/">🏥 MediBook</a>
+    <a href="/logout/" class="btn btn-outline-light btn-sm">Déconnexion</a>
+</nav>
+
+<div class="container mt-5" style="max-width:650px">
+    <h2>✏️ Modifier le rendez-vous</h2>
+    <p class="text-muted">
+        Médecin : <strong>Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</strong><br>
+        Créneau actuel : <strong>{{ appointment.date|date:"d/m/Y" }} à {{ appointment.time|time:"H:i" }}</strong>
+    </p>
+
+    {% if error %}
+    <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" id="rescheduleForm">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Nouvelle date</label>
+            <input type="date" id="date" name="date" class="form-control"
+                   min="{{ today }}" value="{{ selected_date }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label fw-semibold">Nouveau créneau</label>
+            <div id="slotsContainer">
+                <p class="text-muted small">Sélectionnez une date pour voir les créneaux.</p>
+            </div>
+            <input type="hidden" name="time" id="selectedTime">
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                ✅ Confirmer la modification
+            </button>
+            <a href="/dashboard/patient/" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</div>
+
+<script>
+const doctorId = {{ appointment.doctor.id }};
+const appointmentId = {{ appointment.id }};
+const dateInput = document.getElementById("date");
+const slotsContainer = document.getElementById("slotsContainer");
+const selectedTimeInput = document.getElementById("selectedTime");
+const submitBtn = document.getElementById("submitBtn");
+
+function selectSlot(time, btn) {
+    document.querySelectorAll(".slot-btn").forEach(b => {
+        b.classList.remove("btn-primary");
+        b.classList.add("btn-outline-primary");
+    });
+    btn.classList.remove("btn-outline-primary");
+    btn.classList.add("btn-primary");
+    selectedTimeInput.value = time;
+    submitBtn.disabled = false;
+}
+
+async function loadSlots(date) {
+    slotsContainer.innerHTML = '<p class="text-muted small">Chargement...</p>';
+    selectedTimeInput.value = "";
+    submitBtn.disabled = true;
+
+    const res = await fetch(`/appointments/slots/${doctorId}/?date=${date}&exclude=${appointmentId}`);
+    const data = await res.json();
+
+    if (!data.slots || data.slots.length === 0) {
+        slotsContainer.innerHTML = '<div class="alert alert-warning">Aucun créneau disponible ce jour-là.</div>';
+        return;
+    }
+
+    let html = '<div class="d-flex flex-wrap gap-2">';
+    data.slots.forEach(slot => {
+        html += `<button type="button" class="btn btn-outline-primary slot-btn" onclick="selectSlot('${slot}', this)">${slot}</button>`;
+    });
+    html += "</div>";
+    slotsContainer.innerHTML = html;
+}
+
+dateInput.addEventListener("change", function() {
+    if (this.value) loadSlots(this.value);
+});
+
+{% if selected_date %}
+window.addEventListener("load", () => loadSlots("{{ selected_date }}"));
+{% endif %}
+</script>
+</body>
+</html>

@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'ai_orientation',
     'patients',
     'dashboard',
+    'notifications',
 ]
 
 # Custom user model

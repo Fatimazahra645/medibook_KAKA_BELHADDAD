@@ -41,6 +41,17 @@ def doctor_dashboard(request):
     cancelled_count = Appointment.objects.filter(doctor=doctor, status="CANCELLED").count()
     confirmed_count = Appointment.objects.filter(doctor=doctor, status="CONFIRMED").count()
 
+    # Notifications non lues
+    try:
+        from notifications.models import Notification
+        unread_notifications = Notification.objects.filter(
+            user=request.user, is_read=False
+        )
+        # Les marquer comme lues après affichage
+        unread_notifications.update(is_read=True)
+    except Exception:
+        unread_notifications = []
+
     return render(request, "dashboard/doctor_dashboard.html", {
         "doctor": doctor,
         "today_appointments": today_appointments,
@@ -48,6 +59,7 @@ def doctor_dashboard(request):
         "total_appointments": total_appointments,
         "cancelled_count": cancelled_count,
         "confirmed_count": confirmed_count,
+        "unread_notifications": unread_notifications,
     })
 
 
