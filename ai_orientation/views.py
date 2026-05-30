@@ -3,6 +3,7 @@ from .services import suggest_speciality
 from doctors.models import Doctor, Speciality
 
 
+
 def ai_orientation_view(request):
     results = []
     symptoms = ""
