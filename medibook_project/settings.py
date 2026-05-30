@@ -43,6 +43,13 @@ INSTALLED_APPS = [
     'appointments',
     'ai_orientation',
 ]
+TEMPLATES = [
+    {
+        ...
+        'DIRS': [BASE_DIR / "templates"],
+        ...
+    },
+]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -52,7 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+AUTH_USER_MODEL = 'accounts.User'
 ROOT_URLCONF = 'medibook_project.urls'
 
 TEMPLATES = [
