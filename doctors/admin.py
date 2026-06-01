@@ -39,6 +39,7 @@ class DoctorAdminForm(forms.ModelForm):
         self.fields["speciality"].label = "Spécialité"
         self.fields["phone"].label = "Téléphone"
         self.fields["address"].label = "Adresse du cabinet"
+        self.fields["image"].label = "Photo de profile"
         self.fields["bio"].label = "Description / Biographie"
         self.fields["experience_years"].label = "Années d'expérience"
         self.fields["is_active"].label = "Actif"
@@ -59,7 +60,7 @@ class DoctorAdmin(admin.ModelAdmin):
             "fields": ("user",),
         }),
         ("Informations professionnelles", {
-            "fields": ("speciality", "phone", "address", "experience_years"),
+            "fields": ("speciality", "phone", "address", "experience_years", "image"),
         }),
         ("Description", {
             "fields": ("bio",),

@@ -15,6 +15,7 @@ class Doctor(models.Model):
 
     phone = models.CharField(max_length=20)
     address = models.CharField(max_length=255)
+    image = models.ImageField(upload_to='doctors/',blank=True,null=True)
     bio = models.TextField(blank=True)
     experience_years = models.IntegerField(default=0)
     is_active = models.BooleanField(default=True)

@@ -17,9 +17,9 @@ services:
     container_name: medibook_db
     restart: always
     environment:
-      POSTGRES_DB: medibook_db
-      POSTGRES_USER: medibook_user
-      POSTGRES_PASSWORD: medibook_password
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:

@@ -35,6 +35,18 @@
         {% for doctor in doctors %}
         <div class="col-md-4 mb-4">
             <div class="card h-100 shadow-sm">
+
+                {% if doctor.image %}
+                    <img src="{{ doctor.image.url }}"
+                        class="card-img-top"
+                        alt="Photo du médecin"
+                        style="height:250px; object-fit:cover;">
+                {% else %}
+                    <img src="https://via.placeholder.com/400x250?text=Doctor"
+                        class="card-img-top"
+                        alt="Photo par défaut">
+                {% endif %}
+
                 <div class="card-body">
                     <h5 class="card-title">
                         Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}
