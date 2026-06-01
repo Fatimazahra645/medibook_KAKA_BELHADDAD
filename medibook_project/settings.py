@@ -1,4 +1,9 @@
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Charger les variables d'environnement
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -30,10 +35,8 @@ INSTALLED_APPS = [
 # Custom user model
 AUTH_USER_MODEL = 'accounts.User'
 
-# Redirect unauthenticated users to login
 LOGIN_URL = '/login/'
 
-# Default primary key type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Templates
@@ -66,11 +69,17 @@ ROOT_URLCONF = 'medibook_project.urls'
 
 WSGI_APPLICATION = 'medibook_project.wsgi.application'
 
-# Database
+# =========================
+# DATABASE POSTGRESQL
+# =========================
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST", "localhost"),
+        "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
 
@@ -90,3 +99,4 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
