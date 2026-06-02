@@ -1,7 +1,10 @@
-__pycache__/
-*.pyc
-.env
-db.sqlite3
 postgres_data/
-staticfiles/
+venv/
+**pycache**/
+*.pyc
+.git/
+.env
 media/
+staticfiles/
+db.sqlite3
+.DS_Store
