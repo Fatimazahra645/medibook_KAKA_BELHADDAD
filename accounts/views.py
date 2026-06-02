@@ -4,6 +4,9 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .utils import get_dashboard_url
 from doctors.models import Doctor, Speciality
+
+
+
 User = get_user_model()
 
 def home(request):
@@ -21,21 +24,36 @@ def login_view(request):
         return render(request,"accounts/login.html",{"error":"Identifiants incorrects."})
     return render(request,"accounts/login.html")
 
+
+
 def register_view(request):
-    if request.method=="POST":
-        un=request.POST.get("username","").strip()
-        em=request.POST.get("email","").strip()
-        fn=request.POST.get("first_name","").strip()
-        ln=request.POST.get("last_name","").strip()
-        pw=request.POST.get("password","")
-        pw2=request.POST.get("password2","")
-        if pw!=pw2:
-            return render(request,"accounts/register.html",{"error":"Mots de passe differents."})
+    if request.method == "POST":
+        un = request.POST.get("username", "").strip()
+        em = request.POST.get("email", "").strip()
+        fn = request.POST.get("first_name", "").strip()
+        ln = request.POST.get("last_name", "").strip()
+        pw = request.POST.get("password", "")
+        pw2 = request.POST.get("password2", "")
+
+        if pw != pw2:
+            return render(request, "accounts/register.html", {"error": "Mots de passe differents."})
+
         if User.objects.filter(username=un).exists():
-            return render(request,"accounts/register.html",{"error":"Nom d'utilisateur deja pris."})
-        User.objects.create_user(username=un,email=em,first_name=fn,last_name=ln,password=pw,role="PATIENT")
+            return render(request, "accounts/register.html", {"error": "Nom d'utilisateur deja pris."})
+
+        User.objects.create_user(
+            username=un,
+            email=em,
+            first_name=fn,
+            last_name=ln,
+            password=pw,
+            role="PATIENT"
+        )
+
+        # 🔥 important pour test = redirect 302
         return redirect("login")
-    return render(request,"accounts/register.html")
+
+    return render(request, "accounts/register.html")
 
 def logout_view(request):
     logout(request); return redirect("home")
