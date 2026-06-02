@@ -44,12 +44,20 @@ jobs:
 
       - name: Run migrations
         env:
-          DATABASE_URL: postgres://medibook:medibook@localhost:5432/medibook
+          DB_NAME: medibook
+          DB_USER: medibook
+          DB_PASSWORD: medibook
+          DB_HOST: localhost
+          DB_PORT: 5432
         run: |
           python manage.py migrate
 
       - name: Run tests
         env:
-          DATABASE_URL: postgres://medibook:medibook@localhost:5432/medibook
+          DB_NAME: medibook
+          DB_USER: medibook
+          DB_PASSWORD: medibook
+          DB_HOST: localhost
+          DB_PORT: 5432
         run: |
           python manage.py test -v 2
