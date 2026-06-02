@@ -5,3 +5,4 @@ whitenoise
 Pillow
 python-dotenv
 scikit-learn
+dj-database-url
