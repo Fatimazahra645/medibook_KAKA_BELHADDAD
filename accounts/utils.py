@@ -1,12 +1,6 @@
 def get_dashboard_url(user):
-
-    if user.is_superuser:
+    if user.is_superuser or getattr(user,'role','') == "ADMIN":
         return "/dashboard/admin/"
-
-    if user.role == "DOCTOR":
+    if getattr(user,'role','') == "DOCTOR":
         return "/dashboard/doctor/"
-
-    if user.role == "PATIENT":
-        return "/dashboard/patient/"
-
-    return "/"
+    return "/dashboard/patient/"

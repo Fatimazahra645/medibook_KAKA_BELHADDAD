@@ -1,122 +1,118 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Tableau de bord Patient - MediBook</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<nav class="navbar navbar-dark bg-primary px-4">
-    <a class="navbar-brand fw-bold" href="/">🏥 MediBook</a>
-    <div class="d-flex gap-2">
-        <a href="/doctors/" class="btn btn-warning btn-sm">Nouveau rendez-vous</a>
-        <a href="/ai/" class="btn btn-light btn-sm">🤖 Orientation IA</a>
-        <a href="/logout/" class="btn btn-outline-light btn-sm">Déconnexion</a>
-    </div>
-</nav>
-
-<div class="container mt-4">
-    <h1 class="mb-4">Mon espace patient</h1>
-
-    {% if messages %}
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>
-    {% endfor %}
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mon espace patient - MediBook</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>body{background:#f0f4f8}.stat-card{border-radius:12px;border:none;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:transform .2s}.stat-card:hover{transform:translateY(-3px)}</style>
+</head><body class="bg-light">
+<nav class="navbar navbar-dark bg-primary px-4 shadow-sm">
+  <a class="navbar-brand fw-bold" href="/">&#127973; MediBook</a>
+  <div class="d-flex gap-2 align-items-center flex-wrap">
+    <a href="/doctors/" class="btn btn-light btn-sm">Medecins</a>
+    <a href="/ai/" class="btn btn-warning btn-sm">&#129302; IA</a>
+    {% if user.is_authenticated %}
+      {% if user.role == "PATIENT" %}
+        <a href="/dashboard/patient/" class="btn btn-outline-light btn-sm">Mon espace</a>
+        <a href="/notifications/" class="btn btn-outline-light btn-sm">&#128276;</a>
+      {% elif user.role == "DOCTOR" %}
+        <a href="/dashboard/doctor/" class="btn btn-outline-light btn-sm">Dashboard</a>
+        <a href="/notifications/" class="btn btn-outline-light btn-sm">&#128276;</a>
+      {% else %}
+        <a href="/dashboard/admin/" class="btn btn-outline-light btn-sm">Admin</a>
+      {% endif %}
+      <span class="text-warning small fw-bold">{{ user.username }}</span>
+      <a href="/logout/" class="btn btn-outline-light btn-sm">Deconnexion</a>
+    {% else %}
+      <a href="/login/" class="btn btn-outline-light btn-sm">Connexion</a>
+      <a href="/register/" class="btn btn-warning btn-sm">Inscription</a>
     {% endif %}
+  </div>
+</nav>
+{% if messages %}
+<div class="container mt-2">{% for m in messages %}
+<div class="alert alert-{% if m.tags %}{{ m.tags }}{% else %}info{% endif %} alert-dismissible fade show py-2 mb-1">
+  {{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>{% endfor %}</div>
+{% endif %}
+<div class="container mt-4 mb-5">
 
-    <h4>📅 Prochains rendez-vous</h4>
-    <div class="table-responsive mb-4">
-        <table class="table table-bordered table-hover align-middle">
-            <thead class="table-primary">
-                <tr>
-                    <th>Date</th>
-                    <th>Heure</th>
-                    <th>Médecin</th>
-                    <th>Spécialité</th>
-                    <th>Statut</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for appointment in upcoming_appointments %}
-                <tr>
-                    <td>{{ appointment.date|date:"d/m/Y" }}</td>
-                    <td>{{ appointment.time|time:"H:i" }}</td>
-                    <td>Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</td>
-                    <td>{{ appointment.speciality.name|default:"—" }}</td>
-                    <td>
-                        <span class="badge bg-{% if appointment.status == 'CONFIRMED' %}success{% elif appointment.status == 'PENDING' %}warning text-dark{% else %}secondary{% endif %}">
-                            {{ appointment.status }}
-                        </span>
-                    </td>
-                    <td>
-                        <a href="/appointments/reschedule/{{ appointment.id }}/"
-                           class="btn btn-sm btn-outline-primary me-1">✏️ Modifier</a>
-                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                data-bs-toggle="modal"
-                                data-bs-target="#cancelModal{{ appointment.id }}">
-                            ❌ Annuler
-                        </button>
-
-                        <!-- Modal confirmation annulation -->
-                        <div class="modal fade" id="cancelModal{{ appointment.id }}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Confirmer l'annulation</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        Voulez-vous vraiment annuler votre rendez-vous du
-                                        <strong>{{ appointment.date|date:"d/m/Y" }}</strong> à
-                                        <strong>{{ appointment.time|time:"H:i" }}</strong>
-                                        avec Dr. {{ appointment.doctor.user.last_name }} ?
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-secondary" data-bs-dismiss="modal">Non, garder</button>
-                                        <form method="POST" action="/appointments/cancel/{{ appointment.id }}/" style="display:inline">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger">Oui, annuler</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </td>
-                </tr>
-                {% empty %}
-                <tr><td colspan="6" class="text-center text-muted">Aucun rendez-vous à venir.</td></tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <h4>🕓 Historique des consultations</h4>
-    <ul class="list-group mb-4">
-        {% for appointment in past_appointments %}
-        <li class="list-group-item d-flex justify-content-between">
-            <span>{{ appointment.date|date:"d/m/Y" }} — Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</span>
-            <span class="badge bg-secondary">Terminé</span>
-        </li>
-        {% empty %}
-        <li class="list-group-item text-muted">Aucune consultation passée.</li>
-        {% endfor %}
-    </ul>
-
-    <h4>❌ Rendez-vous annulés</h4>
-    <ul class="list-group">
-        {% for appointment in cancelled_appointments %}
-        <li class="list-group-item d-flex justify-content-between">
-            <span>{{ appointment.date|date:"d/m/Y" }} — Dr. {{ appointment.doctor.user.first_name }} {{ appointment.doctor.user.last_name }}</span>
-            <span class="badge bg-danger">Annulé</span>
-        </li>
-        {% empty %}
-        <li class="list-group-item text-muted">Aucun rendez-vous annulé.</li>
-        {% endfor %}
-    </ul>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <h2>Bonjour, {{ user.first_name|default:user.username }} &#128075;</h2>
+  <div class="d-flex gap-2">
+    <a href="/patients/profile/edit/" class="btn btn-outline-primary btn-sm">&#9999;&#65039; Mon profil</a>
+    <a href="/doctors/" class="btn btn-primary btn-sm">+ Nouveau RDV</a>
+  </div>
 </div>
 
+{% if notifications %}
+<div class="alert alert-info alert-dismissible fade show">
+  <strong>&#128276; Notifications</strong>
+  {% for n in notifications %}<div class="small mt-1">{{ n.message }}</div>{% endfor %}
+  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endif %}
+
+<h4 class="mb-3">&#128197; Prochains rendez-vous</h4>
+{% if upcoming_appointments %}
+<div class="table-responsive mb-4">
+  <table class="table table-bordered table-hover align-middle">
+    <thead class="table-primary"><tr><th>Date</th><th>Heure</th><th>Medecin</th><th>Specialite</th><th>Statut</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for appt in upcoming_appointments %}
+    <tr>
+      <td>{{ appt.date|date:"d/m/Y" }}</td>
+      <td>{{ appt.time|time:"H:i" }}</td>
+      <td>Dr. {{ appt.doctor.user.first_name }} {{ appt.doctor.user.last_name }}</td>
+      <td>{{ appt.speciality.name|default:"—" }}</td>
+      <td><span class="badge {% if appt.status == 'CONFIRMED' %}bg-success{% elif appt.status == 'PENDING' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ appt.status }}</span></td>
+      <td>
+        <a href="/appointments/reschedule/{{ appt.id }}/" class="btn btn-outline-primary btn-sm">Modifier</a>
+        <a href="/appointments/cancel/{{ appt.id }}/" class="btn btn-outline-danger btn-sm">Annuler</a>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}<p class="text-muted mb-4">Aucun rendez-vous a venir. <a href="/doctors/">Reserver</a></p>{% endif %}
+
+<h4 class="mb-3">&#128214; Historique des consultations</h4>
+{% if past_appointments %}
+<div class="table-responsive mb-4">
+  <table class="table table-sm table-hover">
+    <thead class="table-light"><tr><th>Date</th><th>Medecin</th><th>Specialite</th><th>Statut</th></tr></thead>
+    <tbody>
+    {% for appt in past_appointments %}
+    <tr>
+      <td>{{ appt.date|date:"d/m/Y" }}</td>
+      <td>Dr. {{ appt.doctor.user.first_name }} {{ appt.doctor.user.last_name }}</td>
+      <td>{{ appt.speciality.name|default:"—" }}</td>
+      <td><span class="badge {% if appt.status == 'COMPLETED' %}bg-primary{% else %}bg-secondary{% endif %}">{{ appt.status }}</span></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}<p class="text-muted mb-4">Aucune consultation passee.</p>{% endif %}
+
+{% if cancelled_appointments %}
+<details class="mb-4"><summary class="text-muted small">Rendez-vous annules ({{ cancelled_appointments|length }})</summary>
+<div class="table-responsive mt-2">
+  <table class="table table-sm">
+    <thead><tr><th>Date</th><th>Medecin</th><th>Statut</th></tr></thead>
+    <tbody>
+    {% for appt in cancelled_appointments %}
+    <tr><td>{{ appt.date|date:"d/m/Y" }}</td><td>Dr. {{ appt.doctor.user.last_name }}</td><td><span class="badge bg-danger">Annule</span></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></details>
+{% endif %}
+
+</div>
+<footer class="bg-primary text-white text-center py-3 mt-4">
+  <small>&copy; 2025 MediBook - Plateforme de gestion de rendez-vous medicaux</small>
+</footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+
+</body></html>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Inscription - MediBook</title>
+<title>Profil medecin - MediBook</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>body{background:#f0f4f8}.stat-card{border-radius:12px;border:none;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:transform .2s}.stat-card:hover{transform:translateY(-3px)}</style>
 </head><body class="bg-light">
@@ -36,41 +36,42 @@
 {% endif %}
 <div class="container mt-4 mb-5">
 
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="card shadow p-4">
-      <h3 class="mb-4 text-center">Creer un compte patient</h3>
-      {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
-      <form method="POST">{% csrf_token %}
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">Prenom</label>
-            <input type="text" name="first_name" class="form-control">
+<div class="row">
+  <div class="col-md-4">
+    <div class="card shadow-sm p-3 text-center">
+      {% if doctor.image %}
+      <img src="{{ doctor.image.url }}" class="rounded-circle mb-3 mx-auto d-block" width="140" height="140" style="object-fit:cover;">
+      {% endif %}
+      <h4>Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}</h4>
+      {% if doctor.speciality %}<span class="badge bg-primary fs-6">{{ doctor.speciality.name }}</span>{% endif %}
+      <hr>
+      {% if doctor.phone %}<p class="small"><strong>Tel:</strong> {{ doctor.phone }}</p>{% endif %}
+      {% if doctor.address %}<p class="small"><strong>Adresse:</strong> {{ doctor.address }}</p>{% endif %}
+      {% if doctor.experience_years %}<p class="small"><strong>Experience:</strong> {{ doctor.experience_years }} ans</p>{% endif %}
+      {% if avg_rating %}<p class="small"><strong>Note moyenne:</strong> {{ avg_rating }}/5 ({{ review_count }} avis)</p>{% endif %}
+      {% if user.is_authenticated and user.role == "PATIENT" %}
+      <a href="/appointments/book/{{ doctor.id }}/" class="btn btn-primary mt-2 w-100">&#128197; Reserver un RDV</a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-md-8">
+    {% if doctor.bio %}<div class="card p-3 mb-3 shadow-sm"><h5>A propos</h5><p>{{ doctor.bio }}</p></div>{% endif %}
+    <div class="card p-3 shadow-sm">
+      <h5 class="mb-3">Avis patients ({{ review_count }})</h5>
+      {% if reviews %}
+        {% for r in reviews %}
+        <div class="border-bottom pb-2 mb-2">
+          <div class="d-flex justify-content-between">
+            <strong>{{ r.patient.user.first_name }} {{ r.patient.user.last_name }}</strong>
+            <span class="text-warning">{% for i in "12345" %}{% if forloop.counter <= r.rating %}&#11088;{% endif %}{% endfor %}</span>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Nom</label>
-            <input type="text" name="last_name" class="form-control">
-          </div>
-          <div class="col-12">
-            <label class="form-label">Nom d'utilisateur *</label>
-            <input type="text" name="username" class="form-control" required>
-          </div>
-          <div class="col-12">
-            <label class="form-label">Email</label>
-            <input type="email" name="email" class="form-control">
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Mot de passe *</label>
-            <input type="password" name="password" class="form-control" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Confirmer *</label>
-            <input type="password" name="password2" class="form-control" required>
-          </div>
+          <p class="small text-muted mb-0">{{ r.comment }}</p>
         </div>
-        <button type="submit" class="btn btn-primary w-100 mt-3">S'inscrire</button>
-      </form>
-      <p class="text-center mt-3">Deja inscrit ? <a href="/login/">Connexion</a></p>
+        {% endfor %}
+      {% else %}<p class="text-muted">Aucun avis pour ce medecin.</p>{% endif %}
+      {% if user.is_authenticated and user.role == "PATIENT" %}
+      <a href="/doctors/review/{{ doctor.id }}/" class="btn btn-outline-warning btn-sm mt-2">Laisser un avis</a>
+      {% endif %}
     </div>
   </div>
 </div>

@@ -1,6 +1,11 @@
 from django.contrib import admin
 from django import forms
 from .models import Doctor, Speciality, Availability
+from .models import Doctor, Review
+
+
+
+admin.site.register(Review)
 
 
 class AvailabilityInline(admin.TabularInline):

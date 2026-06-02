@@ -1,88 +1,102 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Médecins - MediBook</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<nav class="navbar navbar-dark bg-primary px-4">
-    <a class="navbar-brand fw-bold" href="/">🏥 MediBook</a>
-    <div class="d-flex gap-2">
-        <a href="/ai/" class="btn btn-warning btn-sm">🤖 Orientation IA</a>
-        {% if user.is_authenticated %}
-            <a href="/dashboard/patient/" class="btn btn-light btn-sm">Mon espace</a>
-            <a href="/logout/" class="btn btn-outline-light btn-sm">Déconnexion</a>
-        {% else %}
-            <a href="/login/" class="btn btn-light btn-sm">Connexion</a>
-            <a href="/register/" class="btn btn-warning btn-sm">Inscription</a>
-        {% endif %}
-    </div>
-</nav>
-
-<div class="container mt-5">
-    <h2 class="mb-4">Liste des médecins</h2>
-
-    {% if not user.is_authenticated %}
-    <div class="alert alert-info">
-        <strong>ℹ️ Connexion requise</strong> — Pour réserver un rendez-vous, vous devez
-        <a href="/login/">vous connecter</a> ou <a href="/register/">créer un compte patient</a>.
-    </div>
-    {% endif %}
-
-    {% if doctors %}
-    <div class="row">
-        {% for doctor in doctors %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100 shadow-sm">
-
-                {% if doctor.image %}
-                    <img src="{{ doctor.image.url }}"
-                        class="card-img-top"
-                        alt="Photo du médecin"
-                        style="height:250px; object-fit:cover;">
-                {% else %}
-                    <img src="https://via.placeholder.com/400x250?text=Doctor"
-                        class="card-img-top"
-                        alt="Photo par défaut">
-                {% endif %}
-
-                <div class="card-body">
-                    <h5 class="card-title">
-                        Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}
-                    </h5>
-                    <span class="badge bg-primary mb-2">{{ doctor.speciality.name|default:"Spécialité non définie" }}</span>
-                    <p class="card-text text-muted small">{{ doctor.bio|default:""|truncatechars:100 }}</p>
-                    <ul class="list-unstyled small">
-                        <li>📞 {{ doctor.phone|default:"—" }}</li>
-                        <li>📍 {{ doctor.address|default:"—" }}</li>
-                        {% if doctor.experience_years %}
-                        <li>🎓 {{ doctor.experience_years }} ans d'expérience</li>
-                        {% endif %}
-                    </ul>
-                </div>
-                <div class="card-footer bg-white border-0">
-                    {% if user.is_authenticated and user.role == "PATIENT" %}
-                        <a href="/appointments/book/{{ doctor.id }}/" class="btn btn-primary w-100">
-                            📅 Réserver un rendez-vous
-                        </a>
-                    {% elif user.is_authenticated %}
-                        <button class="btn btn-secondary w-100" disabled>
-                            Réservation réservée aux patients
-                        </button>
-                    {% else %}
-                        <a href="/login/?next=/appointments/book/{{ doctor.id }}/" class="btn btn-outline-primary w-100">
-                            🔐 Connectez-vous pour réserver
-                        </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Liste des medecins - MediBook</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>body{background:#f0f4f8}.stat-card{border-radius:12px;border:none;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:transform .2s}.stat-card:hover{transform:translateY(-3px)}</style>
+</head><body class="bg-light">
+<nav class="navbar navbar-dark bg-primary px-4 shadow-sm">
+  <a class="navbar-brand fw-bold" href="/">&#127973; MediBook</a>
+  <div class="d-flex gap-2 align-items-center flex-wrap">
+    <a href="/doctors/" class="btn btn-light btn-sm">Medecins</a>
+    <a href="/ai/" class="btn btn-warning btn-sm">&#129302; IA</a>
+    {% if user.is_authenticated %}
+      {% if user.role == "PATIENT" %}
+        <a href="/dashboard/patient/" class="btn btn-outline-light btn-sm">Mon espace</a>
+        <a href="/notifications/" class="btn btn-outline-light btn-sm">&#128276;</a>
+      {% elif user.role == "DOCTOR" %}
+        <a href="/dashboard/doctor/" class="btn btn-outline-light btn-sm">Dashboard</a>
+        <a href="/notifications/" class="btn btn-outline-light btn-sm">&#128276;</a>
+      {% else %}
+        <a href="/dashboard/admin/" class="btn btn-outline-light btn-sm">Admin</a>
+      {% endif %}
+      <span class="text-warning small fw-bold">{{ user.username }}</span>
+      <a href="/logout/" class="btn btn-outline-light btn-sm">Deconnexion</a>
     {% else %}
-    <div class="alert alert-warning">Aucun médecin disponible pour le moment.</div>
+      <a href="/login/" class="btn btn-outline-light btn-sm">Connexion</a>
+      <a href="/register/" class="btn btn-warning btn-sm">Inscription</a>
     {% endif %}
+  </div>
+</nav>
+{% if messages %}
+<div class="container mt-2">{% for m in messages %}
+<div class="alert alert-{% if m.tags %}{{ m.tags }}{% else %}info{% endif %} alert-dismissible fade show py-2 mb-1">
+  {{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>{% endfor %}</div>
+{% endif %}
+<div class="container mt-4 mb-5">
+
+<div class="card shadow-sm mb-4 p-3">
+  <form method="GET" class="row g-2 align-items-end">
+    <div class="col-md-5">
+      <label class="form-label small fw-semibold">Rechercher par nom</label>
+      <input type="text" name="q" class="form-control" placeholder="Nom du medecin..." value="{{ query }}">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label small fw-semibold">Specialite</label>
+      <select name="speciality" class="form-select">
+        <option value="">-- Toutes les specialites --</option>
+        {% for s in specialities %}
+        <option value="{{ s.id }}" {% if selected_speciality == s.id|stringformat:"s" %}selected{% endif %}>{{ s.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <button type="submit" class="btn btn-primary w-100">&#128269; Rechercher</button>
+    </div>
+  </form>
 </div>
-</body>
-</html>
+{% if not user.is_authenticated %}
+<div class="alert alert-info">&#128274; <a href="/login/">Connectez-vous</a> pour reserver un rendez-vous.</div>
+{% endif %}
+{% if doctors %}
+<div class="row g-4">
+  {% for doctor in doctors %}
+  <div class="col-md-4">
+    <div class="card h-100 shadow-sm">
+      {% if doctor.image %}
+      <img src="{{ doctor.image.url }}" class="card-img-top" style="height:200px;object-fit:cover;">
+      {% else %}
+      <div class="bg-secondary text-white text-center py-5">&#128105;&#8205;&#9877;&#65039;</div>
+      {% endif %}
+      <div class="card-body">
+        <h5>Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}</h5>
+        {% if doctor.speciality %}<span class="badge bg-primary mb-2">{{ doctor.speciality.name }}</span>{% endif %}
+        <p class="small text-muted">{{ doctor.bio|default:""|truncatechars:100 }}</p>
+        <ul class="list-unstyled small text-muted">
+          {% if doctor.phone %}<li>&#128222; {{ doctor.phone }}</li>{% endif %}
+          {% if doctor.address %}<li>&#128205; {{ doctor.address }}</li>{% endif %}
+          {% if doctor.experience_years %}<li>&#11088; {{ doctor.experience_years }} ans d'experience</li>{% endif %}
+        </ul>
+      </div>
+      <div class="card-footer d-flex gap-2">
+        <a href="/doctors/{{ doctor.id }}/" class="btn btn-outline-primary btn-sm">Voir profil</a>
+        {% if user.is_authenticated and user.role == "PATIENT" %}
+        <a href="/appointments/book/{{ doctor.id }}/" class="btn btn-primary btn-sm">Reserver</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-warning text-center">Aucun medecin trouve. <a href="/doctors/">Voir tous</a></div>
+{% endif %}
+
+</div>
+<footer class="bg-primary text-white text-center py-3 mt-4">
+  <small>&copy; 2025 MediBook - Plateforme de gestion de rendez-vous medicaux</small>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body></html>

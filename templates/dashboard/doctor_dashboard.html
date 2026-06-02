@@ -1,97 +1,141 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <title>Tableau de bord Médecin - MediBook</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<nav class="navbar navbar-dark bg-primary px-4">
-    <a class="navbar-brand fw-bold" href="/">🏥 MediBook</a>
-    <a href="/logout/" class="btn btn-outline-light btn-sm">Déconnexion</a>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tableau de bord medecin - MediBook</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>body{background:#f0f4f8}.stat-card{border-radius:12px;border:none;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:transform .2s}.stat-card:hover{transform:translateY(-3px)}</style>
+</head><body class="bg-light">
+<nav class="navbar navbar-dark bg-primary px-4 shadow-sm">
+  <a class="navbar-brand fw-bold" href="/">&#127973; MediBook</a>
+  <div class="d-flex gap-2 align-items-center flex-wrap">
+    <a href="/doctors/" class="btn btn-light btn-sm">Medecins</a>
+    <a href="/ai/" class="btn btn-warning btn-sm">&#129302; IA</a>
+    {% if user.is_authenticated %}
+      {% if user.role == "PATIENT" %}
+        <a href="/dashboard/patient/" class="btn btn-outline-light btn-sm">Mon espace</a>
+        <a href="/notifications/" class="btn btn-outline-light btn-sm">&#128276;</a>
+      {% elif user.role == "DOCTOR" %}
+        <a href="/dashboard/doctor/" class="btn btn-outline-light btn-sm">Dashboard</a>
+        <a href="/notifications/" class="btn btn-outline-light btn-sm">&#128276;</a>
+      {% else %}
+        <a href="/dashboard/admin/" class="btn btn-outline-light btn-sm">Admin</a>
+      {% endif %}
+      <span class="text-warning small fw-bold">{{ user.username }}</span>
+      <a href="/logout/" class="btn btn-outline-light btn-sm">Deconnexion</a>
+    {% else %}
+      <a href="/login/" class="btn btn-outline-light btn-sm">Connexion</a>
+      <a href="/register/" class="btn btn-warning btn-sm">Inscription</a>
+    {% endif %}
+  </div>
 </nav>
+{% if messages %}
+<div class="container mt-2">{% for m in messages %}
+<div class="alert alert-{% if m.tags %}{{ m.tags }}{% else %}info{% endif %} alert-dismissible fade show py-2 mb-1">
+  {{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>{% endfor %}</div>
+{% endif %}
+<div class="container mt-4 mb-5">
 
-<div class="container mt-4">
-    <h1 class="mb-4">Tableau de bord Médecin</h1>
-
-    <div class="d-flex align-items-center mb-4">
-    {% if doctor.image %}
-        <img src="{{ doctor.image.url }}"
-             alt="Photo médecin"
-             class="rounded-circle me-3"
-             width="120"
-             height="120"
-             style="object-fit: cover;">
-    {% endif %}
-
-    <div>
-        <h3>
-            Dr. {{ doctor.user.first_name }}
-            {{ doctor.user.last_name }}
-        </h3>
-
-        <p class="text-muted">
-            {{ doctor.speciality.name }}
-        </p>
-    </div>
+<div class="d-flex align-items-center mb-4 flex-wrap gap-3">
+  {% if doctor.image %}<img src="{{ doctor.image.url }}" class="rounded-circle" width="80" height="80" style="object-fit:cover;">{% endif %}
+  <div>
+    <h2 class="mb-0">Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}</h2>
+    <p class="text-muted mb-0">{{ doctor.speciality.name|default:"Specialite non definie" }}</p>
+  </div>
+  <div class="ms-auto d-flex gap-2 flex-wrap">
+    <a href="/doctors/profile/edit/" class="btn btn-outline-primary btn-sm">&#9999;&#65039; Modifier profil</a>
+    <a href="/doctors/availability/" class="btn btn-outline-success btn-sm">&#128197; Disponibilites</a>
+  </div>
 </div>
 
-    <!-- Notifications non lues -->
-    {% if unread_notifications %}
-    <div class="mb-4">
-        <h5>🔔 Notifications <span class="badge bg-danger">{{ unread_notifications.count }}</span></h5>
-        {% for notif in unread_notifications %}
-        <div class="alert alert-warning">{{ notif.message }}</div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-center p-3 bg-light">
-                <h4>{{ total_appointments }}</h4><p>Total</p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center p-3 bg-light">
-                <h4>{{ confirmed_count }}</h4><p>Confirmés</p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center p-3 bg-light">
-                <h4>{{ cancelled_count }}</h4><p>Annulés</p>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-center p-3 bg-light">
-                <h4>{{ today_appointments.count }}</h4><p>Aujourd'hui</p>
-            </div>
-        </div>
-    </div>
-
-    <h4>Rendez-vous du jour</h4>
-    <ul class="list-group mb-4">
-        {% for appointment in today_appointments %}
-        <li class="list-group-item d-flex justify-content-between">
-            <span>{{ appointment.time|time:"H:i" }} — {{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</span>
-            <span class="badge bg-primary">{{ appointment.status }}</span>
-        </li>
-        {% empty %}
-        <li class="list-group-item text-muted">Aucun rendez-vous aujourd'hui.</li>
-        {% endfor %}
-    </ul>
-
-    <h4>Rendez-vous de la semaine</h4>
-    <ul class="list-group">
-        {% for appointment in week_appointments %}
-        <li class="list-group-item d-flex justify-content-between">
-            <span>{{ appointment.date|date:"d/m/Y" }} {{ appointment.time|time:"H:i" }} — {{ appointment.patient.user.first_name }} {{ appointment.patient.user.last_name }}</span>
-            <span class="badge bg-secondary">{{ appointment.status }}</span>
-        </li>
-        {% empty %}
-        <li class="list-group-item text-muted">Aucun rendez-vous cette semaine.</li>
-        {% endfor %}
-    </ul>
+{% if unread_notifications %}
+<div class="alert alert-warning alert-dismissible fade show">
+  <strong>&#128276; {{ unread_notifications|length }} notification(s)</strong>
+  {% for n in unread_notifications %}<div class="small mt-1">{{ n.message }}</div>{% endfor %}
+  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
-</body>
-</html>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3"><div class="card stat-card text-center p-3 bg-primary text-white"><h3>{{ total_appointments }}</h3><p class="mb-0">Total</p></div></div>
+  <div class="col-6 col-md-3"><div class="card stat-card text-center p-3 bg-warning"><h3>{{ pending_count }}</h3><p class="mb-0">En attente</p></div></div>
+  <div class="col-6 col-md-3"><div class="card stat-card text-center p-3 bg-success text-white"><h3>{{ confirmed_count }}</h3><p class="mb-0">Confirmes</p></div></div>
+  <div class="col-6 col-md-3"><div class="card stat-card text-center p-3 bg-secondary text-white"><h3>{{ completed_count }}</h3><p class="mb-0">Termines</p></div></div>
+</div>
+
+<h4>&#128197; Rendez-vous du jour ({{ today }})</h4>
+{% if today_appointments %}
+<div class="table-responsive mb-4">
+  <table class="table table-bordered table-hover align-middle">
+    <thead class="table-primary">
+      <tr><th>Heure</th><th>Patient</th><th>Motif</th><th>Statut</th><th>Actions</th></tr>
+    </thead>
+    <tbody>
+    {% for appt in today_appointments %}
+    <tr>
+      <td><strong>{{ appt.time|time:"H:i" }}</strong></td>
+      <td>{{ appt.patient.user.first_name }} {{ appt.patient.user.last_name }}</td>
+      <td><small>{{ appt.reason|truncatechars:60 }}</small></td>
+      <td>
+        <span class="badge
+          {% if appt.status == 'CONFIRMED' %}bg-success
+          {% elif appt.status == 'PENDING' %}bg-warning text-dark
+          {% elif appt.status == 'COMPLETED' %}bg-primary
+          {% elif appt.status == 'CANCELLED' %}bg-danger
+          {% else %}bg-secondary{% endif %}">{{ appt.status }}</span>
+      </td>
+      <td>
+        <div class="d-flex gap-1 flex-wrap">
+        {% if appt.status == "PENDING" %}
+          <form method="post" action="/appointments/confirm/{{ appt.id }}/" class="d-inline">
+            {% csrf_token %}<button class="btn btn-success btn-sm">Confirmer</button>
+          </form>
+          <form method="post" action="/appointments/doctor-cancel/{{ appt.id }}/" class="d-inline">
+            {% csrf_token %}<button class="btn btn-danger btn-sm">Annuler</button>
+          </form>
+        {% elif appt.status == "CONFIRMED" %}
+          <form method="post" action="/appointments/doctor-cancel/{{ appt.id }}/" class="d-inline">
+            {% csrf_token %}<button class="btn btn-danger btn-sm">Annuler</button>
+          </form>
+          <form method="post" action="/appointments/absent/{{ appt.id }}/" class="d-inline">
+            {% csrf_token %}<button class="btn btn-secondary btn-sm">Absent</button>
+          </form>
+          <a href="/appointments/consultation/create/{{ appt.id }}/" class="btn btn-primary btn-sm">+ Consultation</a>
+        {% endif %}
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<p class="text-muted">Aucun rendez-vous aujourd'hui.</p>
+{% endif %}
+
+<h4>&#128198; Planning de la semaine</h4>
+{% if week_appointments %}
+<div class="table-responsive">
+  <table class="table table-sm table-hover">
+    <thead class="table-light"><tr><th>Date</th><th>Heure</th><th>Patient</th><th>Statut</th></tr></thead>
+    <tbody>
+    {% for appt in week_appointments %}
+    <tr>
+      <td>{{ appt.date|date:"d/m/Y" }}</td>
+      <td>{{ appt.time|time:"H:i" }}</td>
+      <td>{{ appt.patient.user.first_name }} {{ appt.patient.user.last_name }}</td>
+      <td><span class="badge {% if appt.status == 'CONFIRMED' %}bg-success{% elif appt.status == 'PENDING' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ appt.status }}</span></td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}<p class="text-muted">Aucun rendez-vous cette semaine.</p>{% endif %}
+
+</div>
+<footer class="bg-primary text-white text-center py-3 mt-4">
+  <small>&copy; 2025 MediBook - Plateforme de gestion de rendez-vous medicaux</small>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body></html>

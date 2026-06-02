@@ -1,5 +1,9 @@
 from django.contrib import admin
-from .models import Appointment
+from .models import Appointment, Consultation
+
+
+
+admin.site.register(Consultation)
 
 
 @admin.register(Appointment)

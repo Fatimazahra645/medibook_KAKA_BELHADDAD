@@ -1,5 +1,8 @@
 from django.db import models
 from accounts.models import User
+from patients.models import Patient
+
+
 
 class Speciality(models.Model):
     name = models.CharField(max_length=100)
@@ -39,3 +42,39 @@ class Availability(models.Model):
 
     start_time = models.TimeField()
     end_time = models.TimeField()
+
+
+
+
+class Review(models.Model):
+
+    doctor = models.ForeignKey(
+        "Doctor",
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+
+    patient = models.ForeignKey(
+        Patient,
+        on_delete=models.CASCADE
+    )
+
+    rating = models.IntegerField(
+        choices=[
+            (1, "1"),
+            (2, "2"),
+            (3, "3"),
+            (4, "4"),
+            (5, "5")
+        ]
+    )
+
+    comment = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("doctor", "patient")
+
+    def __str__(self):
+        return f"{self.patient} - {self.doctor}"
