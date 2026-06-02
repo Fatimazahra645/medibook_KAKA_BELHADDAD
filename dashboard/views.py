@@ -91,3 +91,16 @@ def patient_dashboard(request):
         "past_appointments": past_appointments,
         "cancelled_appointments": cancelled_appointments,
     })
+
+
+@staff_member_required
+def admin_dashboard(request):
+
+    context = {
+        "patients_count": Patient.objects.count(),
+        "doctors_count": Doctor.objects.count(),
+        "appointments_count": Appointment.objects.count(),
+        "appointments_today": Appointment.objects.filter(date__date="2026-06-02").count(),
+    }
+
+    return render(request, "admin/dashboard.html", context)

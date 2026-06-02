@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div style="padding:20px">
+
+<h1>🏥 MediBook Dashboard</h1>
+
+<div style="display:flex; gap:20px; margin-top:20px">
+
+  <div style="padding:20px; background:#e3f2fd; border-radius:10px;">
+    <h3>Patients</h3>
+    <h2>{{ patients_count }}</h2>
+  </div>
+
+  <div style="padding:20px; background:#e8f5e9; border-radius:10px;">
+    <h3>Doctors</h3>
+    <h2>{{ doctors_count }}</h2>
+  </div>
+
+  <div style="padding:20px; background:#fff3e0; border-radius:10px;">
+    <h3>Appointments</h3>
+    <h2>{{ appointments_count }}</h2>
+  </div>
+
+  <div style="padding:20px; background:#f3e5f5; border-radius:10px;">
+    <h3>Today</h3>
+    <h2>{{ appointments_today }}</h2>
+  </div>
+
+</div>
+
+</div>
+{% endblock %}

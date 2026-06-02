@@ -5,4 +5,4 @@ whitenoise
 Pillow
 python-dotenv
 scikit-learn
-dj-database-url
+django-jazzmin==3.0.4
