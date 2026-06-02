@@ -1,19 +1,24 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import dj_database_url
 
-# Charger les variables d'environnement
+# Charger variables d'environnement
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-@g)fgf=jvb7w791=3e+az#)x9be(n&0cs1mp+%#v-qn6-@h05#'
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-default-key")
 
-DEBUG = True
+# DEBUG (CI/CD safe)
+DEBUG = os.getenv("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
-# Applications
+
+# =====================
+# APPLICATIONS
+# =====================
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -32,14 +37,16 @@ INSTALLED_APPS = [
     'notifications',
 ]
 
-# Custom user model
 AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_URL = '/login/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Templates
+
+# =====================
+# TEMPLATES
+# =====================
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -55,6 +62,10 @@ TEMPLATES = [
     },
 ]
 
+
+# =====================
+# MIDDLEWARE
+# =====================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -65,25 +76,30 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'medibook_project.urls'
 
+ROOT_URLCONF = 'medibook_project.urls'
 WSGI_APPLICATION = 'medibook_project.wsgi.application'
 
-# =========================
-# DATABASE POSTGRESQL
-# =========================
+
+# =====================
+# DATABASE (FIX CI/CD POSTGRES)
+# =====================
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgres://medibook:medibook@localhost:5432/medibook"
+)
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME"),
-        "USER": os.getenv("DB_USER"),
-        "PASSWORD": os.getenv("DB_PASSWORD"),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", "5432"),
-    }
+    "default": dj_database_url.parse(
+        DATABASE_URL,
+        conn_max_age=600
+    )
 }
 
-# Password validation
+
+# =====================
+# PASSWORD VALIDATION
+# =====================
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -91,15 +107,26 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Internationalization
+
+# =====================
+# INTERNATIONALIZATION
+# =====================
 LANGUAGE_CODE = 'fr-fr'
 TIME_ZONE = 'Africa/Casablanca'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
+
+# =====================
+# STATIC FILES
+# =====================
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
+
+STATICFILES_DIRS = (
+    [BASE_DIR / "static"]
+    if (BASE_DIR / "static").exists()
+    else []
+)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
