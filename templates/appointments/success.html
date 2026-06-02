@@ -1,14 +1,12 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Réservation confirmée - MediBook</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<div class="container mt-5 text-center">
-    <h2 class="text-success">✅ Rendez-vous réservé avec succès !</h2>
-    <p>Votre rendez-vous a été enregistré et est en attente de confirmation.</p>
-    <a href="/dashboard/patient/" class="btn btn-primary mt-3">Aller à mon tableau de bord</a>
+{% extends "base.html" %}
+
+{% block title %}Reservation confirmee - MediBook{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+  <div class="fs-1 text-success">&#10003;</div>
+  <h2 class="text-success mt-2">Rendez-vous reserve avec succes !</h2>
+  <p class="text-muted">Votre rendez-vous a ete enregistre et est en attente de confirmation.</p>
+  <a href="/dashboard/patient/" class="btn btn-primary mt-3">Aller a mon tableau de bord</a>
 </div>
-</body>
-</html>
+{% endblock %}

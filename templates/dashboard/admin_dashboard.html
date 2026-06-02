@@ -1,41 +1,8 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Tableau de bord administrateur - MediBook</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>body{background:#f0f4f8}.stat-card{border-radius:12px;border:none;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:transform .2s}.stat-card:hover{transform:translateY(-3px)}</style>
-</head><body class="bg-light">
-<nav class="navbar navbar-dark bg-primary px-4 shadow-sm">
-  <a class="navbar-brand fw-bold" href="/">&#127973; MediBook</a>
-  <div class="d-flex gap-2 align-items-center flex-wrap">
-    <a href="/doctors/" class="btn btn-light btn-sm">Medecins</a>
-    <a href="/ai/" class="btn btn-warning btn-sm">&#129302; IA</a>
-    {% if user.is_authenticated %}
-      {% if user.role == "PATIENT" %}
-        <a href="/dashboard/patient/" class="btn btn-outline-light btn-sm">Mon espace</a>
-        <a href="/notifications/" class="btn btn-outline-light btn-sm">&#128276;</a>
-      {% elif user.role == "DOCTOR" %}
-        <a href="/dashboard/doctor/" class="btn btn-outline-light btn-sm">Dashboard</a>
-        <a href="/notifications/" class="btn btn-outline-light btn-sm">&#128276;</a>
-      {% else %}
-        <a href="/dashboard/admin/" class="btn btn-outline-light btn-sm">Admin</a>
-      {% endif %}
-      <span class="text-warning small fw-bold">{{ user.username }}</span>
-      <a href="/logout/" class="btn btn-outline-light btn-sm">Deconnexion</a>
-    {% else %}
-      <a href="/login/" class="btn btn-outline-light btn-sm">Connexion</a>
-      <a href="/register/" class="btn btn-warning btn-sm">Inscription</a>
-    {% endif %}
-  </div>
-</nav>
-{% if messages %}
-<div class="container mt-2">{% for m in messages %}
-<div class="alert alert-{% if m.tags %}{{ m.tags }}{% else %}info{% endif %} alert-dismissible fade show py-2 mb-1">
-  {{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-</div>{% endfor %}</div>
-{% endif %}
-<div class="container mt-4 mb-5">
+{% extends "base.html" %}
 
+{% block title %}Tableau de bord administrateur - MediBook{% endblock %}
+
+{% block content %}
 <h2 class="mb-4">&#128272; Tableau de bord Administrateur</h2>
 <div class="row g-3 mb-4">
   <div class="col-6 col-md-3"><div class="card stat-card text-center p-3 bg-primary text-white"><h3>{{ total_patients }}</h3><p class="mb-0">Patients</p></div></div>
@@ -57,11 +24,7 @@
         {% if appts_by_spec %}
         <table class="table table-hover mb-0">
           <thead class="table-light"><tr><th>Specialite</th><th>Nombre</th></tr></thead>
-          <tbody>
-          {% for row in appts_by_spec %}
-          <tr><td>{{ row.speciality__name|default:"Non definie" }}</td><td><span class="badge bg-primary">{{ row.count }}</span></td></tr>
-          {% endfor %}
-          </tbody>
+          <tbody>{% for row in appts_by_spec %}<tr><td>{{ row.speciality__name|default:"Non definie" }}</td><td><span class="badge bg-primary">{{ row.count }}</span></td></tr>{% endfor %}</tbody>
         </table>
         {% else %}<p class="p-3 text-muted">Aucune donnee.</p>{% endif %}
       </div>
@@ -74,15 +37,7 @@
         {% if top_docs %}
         <table class="table table-hover mb-0">
           <thead class="table-light"><tr><th>Medecin</th><th>Specialite</th><th>RDV</th></tr></thead>
-          <tbody>
-          {% for doc in top_docs %}
-          <tr>
-            <td>Dr. {{ doc.user.first_name }} {{ doc.user.last_name }}</td>
-            <td><span class="badge bg-secondary">{{ doc.speciality.name|default:"—" }}</span></td>
-            <td>{{ doc.cnt }}</td>
-          </tr>
-          {% endfor %}
-          </tbody>
+          <tbody>{% for doc in top_docs %}<tr><td>Dr. {{ doc.user.first_name }} {{ doc.user.last_name }}</td><td><span class="badge bg-secondary">{{ doc.speciality.name|default:"—" }}</span></td><td>{{ doc.cnt }}</td></tr>{% endfor %}</tbody>
         </table>
         {% else %}<p class="p-3 text-muted">Aucun medecin.</p>{% endif %}
       </div>
@@ -92,11 +47,4 @@
 <div class="mt-4">
   <a href="/admin/" class="btn btn-dark me-2">&#128272; Interface Admin Django</a>
 </div>
-
-</div>
-<footer class="bg-primary text-white text-center py-3 mt-4">
-  <small>&copy; 2025 MediBook - Plateforme de gestion de rendez-vous medicaux</small>
-</footer>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-</body></html>
+{% endblock %}
