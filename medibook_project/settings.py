@@ -7,11 +7,32 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-medibook-change-in-product
 DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 INSTALLED_APPS = [
+<<<<<<< HEAD
     'jazzmin','django.contrib.admin','django.contrib.auth',
     'django.contrib.contenttypes','django.contrib.sessions',
     'django.contrib.messages','django.contrib.staticfiles',
     'accounts','doctors','appointments','ai_orientation',
     'patients','dashboard','notifications',
+=======
+    'jazzmin',
+    'django_extensions',
+
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+
+    # apps projet
+    'accounts',
+    'doctors',
+    'appointments',
+    'ai_orientation',
+    'patients',
+    'dashboard',
+    'notifications',
+>>>>>>> a709207 (yui)
 ]
 AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = '/login/'
