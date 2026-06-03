@@ -1,8 +1,38 @@
 {% extends "base.html" %}
 
-{% block title %}Medecins - MediBook{% endblock %}
+{% block title %}Médecins - MediBook{% endblock %}
 
 {% block content %}
-<h1>Doctors Page</h1>
-<p>Liste des medecins ici</p>
+
+<h1>Liste des médecins</h1>
+
+<div class="row">
+  {% for doctor in doctors %}
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm text-center">
+
+      {% if doctor.image %}
+        <img src="{{ doctor.image.url }}" class="rounded-circle mx-auto mb-2"
+             width="120" height="120" style="object-fit:cover;">
+      {% else %}
+        <div class="text-muted mb-2">Pas d'image</div>
+      {% endif %}
+
+      <h5>Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }}</h5>
+
+      {% if doctor.speciality %}
+        <span class="badge bg-primary">{{ doctor.speciality.name }}</span>
+      {% endif %}
+
+      <p class="small mt-2">{{ doctor.bio|truncatechars:80 }}</p>
+
+      <a href="/doctors/{{ doctor.id }}/" class="btn btn-outline-primary btn-sm">
+        Voir profil
+      </a>
+
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
 {% endblock %}
