@@ -4,8 +4,6 @@ from accounts import views
 from django.conf import settings
 from django.conf.urls.static import static
 
-
-u
 from django.views.static import serve
 from django.urls import re_path
 
