@@ -5,6 +5,7 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
+      - ./media:/app/media   # 🔥 FIX IMPORTANT POUR LES IMAGES
     ports:
       - "8000:8000"
     env_file:
@@ -24,11 +25,13 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+
 networks:
   default:
     driver: bridge
     ipam:
       config:
         - subnet: 172.31.0.0/16
+
 volumes:
   postgres_data:
