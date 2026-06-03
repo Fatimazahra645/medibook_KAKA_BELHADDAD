@@ -1,6 +1,10 @@
 from django.urls import path
 from .views import add_review, doctor_detail, edit_doctor_profile, manage_availability, delete_availability
+from accounts import views
+
+
 urlpatterns = [
+    path("", views.doctors_view, name="doctors"),
     path("review/<int:doctor_id>/", add_review, name="add_review"),
     path("<int:doctor_id>/", doctor_detail, name="doctor_detail"),
     path("profile/edit/", edit_doctor_profile, name="doctor_profile_edit"),
