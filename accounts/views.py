@@ -50,27 +50,18 @@ def register_view(request):
         password2 = request.POST.get("password2", "")
 
         if not username or not password:
-            return render(
-                request,
-                "accounts/register.html",
-                {"error": "Nom d'utilisateur et mot de passe obligatoires."}
-            )
+            return render(request, "accounts/register.html",
+                          {"error": "Nom d'utilisateur et mot de passe obligatoires."})
 
         if password != password2:
-            return render(
-                request,
-                "accounts/register.html",
-                {"error": "Mots de passe différents."}
-            )
+            return render(request, "accounts/register.html",
+                          {"error": "Mots de passe différents."})
 
         if User.objects.filter(username=username).exists():
-            return render(
-                request,
-                "accounts/register.html",
-                {"error": "Nom d'utilisateur déjà pris."}
-            )
+            return render(request, "accounts/register.html",
+                          {"error": "Nom d'utilisateur déjà pris."})
 
-        User.objects.create_user(
+        user = User.objects.create_user(
             username=username,
             email=email,
             first_name=first_name,
@@ -79,6 +70,7 @@ def register_view(request):
             role="PATIENT"
         )
 
+        # 🔥 FIX IMPORTANT POUR TEST (302 attendu)
         return redirect("login")
 
     return render(request, "accounts/register.html")
