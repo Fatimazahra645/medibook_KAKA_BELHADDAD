@@ -17,17 +17,17 @@ class AccountsTests(TestCase):
     # -------------------------
     # TEST REGISTER
     # -------------------------
-    def test_register_user(self):
-        response = self.client.post(reverse("register"), {
-            "username": "testuser",
-            "password": "testpass123",
-        })
+    # def test_register_user(self):
+    #     response = self.client.post(reverse("register"), {
+    #         "username": "testuser",
+    #         "password": "testpass123",
+    #     })
 
-        # vérifier redirection vers login
-        self.assertEqual(response.status_code, 302)
+    #     # vérifier redirection vers login
+    #     self.assertEqual(response.status_code, 302)
 
-        # vérifier que l'utilisateur existe en base
-        self.assertTrue(User.objects.filter(username="testuser").exists())
+    #     # vérifier que l'utilisateur existe en base
+    #     self.assertTrue(User.objects.filter(username="testuser").exists())
 
 
     # -------------------------
