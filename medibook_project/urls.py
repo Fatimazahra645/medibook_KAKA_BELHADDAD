@@ -18,7 +18,7 @@ urlpatterns = [
     path("ai/", include("ai_orientation.urls")),
     path("patients/", include("patients.urls")),
     path("notifications/", include("notifications.urls")),
-    path("password-reset/", include("django.contrib.auth.urls")),
+    # path("password-reset/", include("django.contrib.auth.urls")),
 ]
 
 
