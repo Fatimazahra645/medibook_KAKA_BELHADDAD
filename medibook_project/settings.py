@@ -13,7 +13,15 @@ SECRET_KEY = os.getenv(
 
 DEBUG = os.getenv("DEBUG", "True") == "True"
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
+ALLOWED_HOSTS = os.getenv(
+    "ALLOWED_HOSTS",
+    "84.8.221.206,localhost"
+).split(",")
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://84.8.221.206",
+    "https://84.8.221.206"
+]
 
 INSTALLED_APPS = [
     "jazzmin",
