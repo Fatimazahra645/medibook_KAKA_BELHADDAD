@@ -31,3 +31,5 @@ urlpatterns += [
         'document_root': settings.MEDIA_ROOT,
     }),
 ]
+
+print("VERSION 2 - CLEAN URLS")
